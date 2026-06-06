@@ -122,7 +122,7 @@ export class MemoryService {
 
       if (!project) {
         project = {
-          id: `project_${Math.random().toString(36).substring(2, 9)}`,
+          id: crypto.randomUUID(),
           name: op.project,
           description: `Automatically created project for ${op.project}`,
           lifeAreaId: 'general',
@@ -134,7 +134,7 @@ export class MemoryService {
         };
         result.projectsToSave.push(project);
         result.timelineEventsToSave.push({
-          id: `timeline_${Math.random().toString(36).substring(2, 9)}`,
+          id: crypto.randomUUID(),
           projectId: project.id,
           type: 'created',
           title: 'Project Initialized',
@@ -144,7 +144,7 @@ export class MemoryService {
       }
 
       const newActivity: Activity = {
-        id: `activity_${Math.random().toString(36).substring(2, 9)}`,
+        id: crypto.randomUUID(),
         projectId: project.id,
         description: op.activity,
         timestamp: dateStr,
@@ -171,20 +171,20 @@ export class MemoryService {
       }
 
       result.timelineEventsToSave.push({
-        id: `timeline_${Math.random().toString(36).substring(2, 9)}`,
-        projectId: updatedProject.id,
-        type: 'activity',
-        title: 'Activity Logged',
-        description: op.activity,
-        timestamp: dateStr,
-      });
+          id: crypto.randomUUID(),
+          projectId: updatedProject.id,
+          type: 'activity',
+          title: 'Activity Logged',
+          description: op.activity,
+          timestamp: dateStr,
+        });
     }
 
     // ---- Create Project ----
     else if (op.operation === 'CREATE_PROJECT') {
       if (!op.project) throw new Error('CREATE_PROJECT requires "project" name.');
 
-      const id = `project_${Math.random().toString(36).substring(2, 9)}`;
+      const id = crypto.randomUUID();
       result.projectsToSave.push({
         id,
         name: op.project,
@@ -198,7 +198,7 @@ export class MemoryService {
       });
 
       result.timelineEventsToSave.push({
-        id: `timeline_${Math.random().toString(36).substring(2, 9)}`,
+        id: crypto.randomUUID(),
         projectId: id,
         type: 'created',
         title: 'Project Created',
@@ -219,7 +219,7 @@ export class MemoryService {
         rel = { ...rel, lastInteractionDate: dateStr, notes: op.notes || rel.notes };
       } else {
         rel = {
-          id: `rel_${Math.random().toString(36).substring(2, 9)}`,
+          id: crypto.randomUUID(),
           name: op.person,
           type: op.relationshipType || 'Family',
           lastInteractionDate: dateStr,
@@ -236,7 +236,7 @@ export class MemoryService {
         throw new Error('CREATE_COMMITMENT requires "commitmentTitle" and "dueAt".');
       }
       result.commitmentsToSave.push({
-        id: `commitment_${Math.random().toString(36).substring(2, 9)}`,
+        id: crypto.randomUUID(),
         title: op.commitmentTitle,
         dueAt: op.dueAt,
         status: 'pending',
@@ -288,7 +288,7 @@ export class MemoryService {
     else if (op.operation === 'CREATE_HABIT') {
       if (!op.habitTitle) throw new Error('CREATE_HABIT requires "habitTitle".');
       result.habitsToSave.push({
-        id: `habit_${Math.random().toString(36).substring(2, 9)}`,
+        id: crypto.randomUUID(),
         title: op.habitTitle,
         frequency: op.habitFrequency || 'daily',
         preferredTime: op.preferredTime || '08:00',
@@ -304,7 +304,7 @@ export class MemoryService {
 
       const today = new Date(referenceDate).toISOString().split('T')[0];
       const newLog: HabitLog = {
-        id: `hlog_${Math.random().toString(36).substring(2, 9)}`,
+        id: crypto.randomUUID(),
         habitId: habit.id,
         date: today,
         status: 'completed',
