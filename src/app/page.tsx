@@ -12,6 +12,8 @@ import { RelationshipPanel } from '../components/dashboard/RelationshipPanel';
 import { TimelinePanel } from '../components/dashboard/TimelinePanel';
 import { TodayFocusPanel } from '../components/dashboard/TodayFocusPanel';
 import { useReminderEngine } from '../hooks/useReminderEngine';
+import { migrateLocalToSupabaseIfNeeded } from '../utils/localStorageMigration';
+import { isSupabaseConfigured } from '../lib/supabaseClient';
 
 type ModalKind = 'none' | 'project' | 'relationship' | 'commitment' | 'habit';
 
@@ -20,6 +22,7 @@ function DashboardContent() {
   const [showDetails, setShowDetails] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalKind>('none');
   const [showFABMenu, setShowFABMenu] = useState(false);
+  const [syncState, setSyncState] = useState<'idle' | 'syncing' | 'done' | 'error'>('idle');
 
   // Proactive reminder engine (60s background tick)
   useReminderEngine({
@@ -137,6 +140,51 @@ function DashboardContent() {
             </div>
             <div className="bg-white/35 backdrop-blur-2xl border border-white/50 rounded-[28px] p-6 shadow-lg">
               <RelationshipPanel />
+            </div>
+          </div>
+        )}
+
+        {/* Sync to Cloud */}
+        {isSupabaseConfigured() && (
+          <div className="max-w-2xl mx-auto pt-4">
+            <div className="bg-sky-950/5 border border-sky-500/15 rounded-[24px] p-5 flex justify-between items-center shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-600 font-bold text-base select-none">☁️</div>
+                <div className="space-y-0.5">
+                  <h4 className="text-sm font-semibold text-sky-700 tracking-wide">Sync to Cloud</h4>
+                  <p className="text-[9px] text-slate-500 font-bold tracking-wider uppercase">
+                    {syncState === 'done' ? 'Sync complete ✓' :
+                     syncState === 'error' ? 'Sync failed — check console' :
+                     syncState === 'syncing' ? 'Syncing…' :
+                     'Push local data to Supabase'}
+                  </p>
+                </div>
+              </div>
+              <button
+                id="sync-to-cloud"
+                disabled={syncState === 'syncing'}
+                onClick={async () => {
+                  setSyncState('syncing');
+                  try {
+                    // Clear the migration flag so it runs again
+                    localStorage.removeItem('rwive_migrated_to_supabase');
+                    // Dynamically load Supabase provider
+                    const { supabase } = await import('../lib/supabaseClient');
+                    const { SupabaseMemoryProvider } = await import('../memory/SupabaseMemoryProvider');
+                    const remote = new SupabaseMemoryProvider(supabase!);
+                    await migrateLocalToSupabaseIfNeeded(remote);
+                    setSyncState('done');
+                    // Reload after 1.5s so fresh data loads from Supabase
+                    setTimeout(() => window.location.reload(), 1500);
+                  } catch (err) {
+                    console.error('[Rwive] Sync failed:', err);
+                    setSyncState('error');
+                  }
+                }}
+                className="px-4 py-2 bg-white/40 hover:bg-sky-500/10 border border-sky-500/20 hover:border-sky-500/40 text-xs font-semibold text-sky-700 rounded-full transition-all duration-300 cursor-pointer uppercase tracking-wider disabled:opacity-50"
+              >
+                {syncState === 'syncing' ? '…' : 'Sync Now'}
+              </button>
             </div>
           </div>
         )}
