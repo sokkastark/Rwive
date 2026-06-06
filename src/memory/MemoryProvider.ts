@@ -27,6 +27,7 @@ export interface MemoryProvider {
   // Timeline
   getTimelineEvents(projectId?: string): Promise<TimelineEvent[]>;
   saveTimelineEvent(event: TimelineEvent): Promise<void>;
+  deleteTimelineEvent(id: string): Promise<void>;
 
   // Snapshots
   getSnapshots(): Promise<MemorySnapshot[]>;

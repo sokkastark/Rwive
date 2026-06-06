@@ -117,6 +117,11 @@ export class LocalMemoryProvider implements MemoryProvider {
     this.setItem(KEYS.TIMELINE, events);
   }
 
+  async deleteTimelineEvent(id: string): Promise<void> {
+    const events = this.getItem<TimelineEvent[]>(KEYS.TIMELINE, []);
+    this.setItem(KEYS.TIMELINE, events.filter((e) => e.id !== id));
+  }
+
   async getSnapshots(): Promise<MemorySnapshot[]> {
     return this.getItem<MemorySnapshot[]>(KEYS.SNAPSHOTS, []);
   }

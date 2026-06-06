@@ -48,6 +48,8 @@ interface MemoryContextType {
   addHabit: (title: string, frequency: 'daily' | 'weekly', preferredTime: string) => Promise<void>;
   completeHabit: (habitId: string) => Promise<void>;
   markHabitReminded: (habitId: string) => Promise<void>;
+  deleteTimelineEvent: (id: string) => Promise<void>;
+  updateTimelineEvent: (id: string, description: string) => Promise<void>;
 }
 
 const MemoryContext = createContext<MemoryContextType | undefined>(undefined);
@@ -289,6 +291,19 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setHabits((prev) => prev.map((item) => item.id === habitId ? updated : item));
   };
 
+  const deleteTimelineEvent = async (id: string) => {
+    await provider.deleteTimelineEvent(id);
+    setTimelineEvents((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  const updateTimelineEvent = async (id: string, description: string) => {
+    const event = timelineEvents.find((e) => e.id === id);
+    if (!event) return;
+    const updated = { ...event, description };
+    await provider.saveTimelineEvent(updated);
+    setTimelineEvents((prev) => prev.map((e) => e.id === id ? updated : e));
+  };
+
   return (
     <MemoryContext.Provider
       value={{
@@ -298,6 +313,7 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         addProject, logActivity, logRelationship, dismissObservation,
         addCommitment, completeCommitment, skipCommitment, snoozeCommitment, markCommitmentAsked,
         addHabit, completeHabit, markHabitReminded,
+        deleteTimelineEvent, updateTimelineEvent,
       }}
     >
       {children}

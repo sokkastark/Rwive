@@ -167,6 +167,15 @@ export class SupabaseMemoryProvider implements MemoryProvider {
     if (error) throw error;
   }
 
+  async deleteTimelineEvent(id: string): Promise<void> {
+    const { error } = await this.client
+      .from('timeline_events')
+      .delete()
+      .eq('id', id)
+      .eq('owner_id', OWNER_ID);
+    if (error) throw error;
+  }
+
   // --- Snapshots (stored as observations since Supabase table exists) ---
   async getSnapshots(): Promise<MemorySnapshot[]> { return []; }
   async saveSnapshot(_snapshot: MemorySnapshot): Promise<void> {}
