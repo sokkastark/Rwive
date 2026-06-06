@@ -18,6 +18,7 @@ import { CompanionEngine } from '../services/CompanionEngine';
 import { BriefingEngine } from '../services/BriefingEngine';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
 import type { MemoryProvider as IMemoryProvider } from '../memory/MemoryProvider';
+import { migrateLocalToSupabaseIfNeeded } from '../utils/localStorageMigration';
 
 // ------------------------------------------------------------------
 // Context shape
@@ -86,6 +87,11 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     async function loadData() {
       try {
+        // If using Supabase, migrate any existing localStorage data first (one-time)
+        if (isSupabaseConfigured()) {
+          await migrateLocalToSupabaseIfNeeded(provider);
+        }
+
         const [projs, acts, rels, obs, times, comms, hbts, hlogs] = await Promise.all([
           provider.getProjects(),
           provider.getActivities(),
