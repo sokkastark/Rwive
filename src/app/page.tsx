@@ -15,6 +15,33 @@ function DashboardContent() {
   const [activeModal, setActiveModal] = useState<'none' | 'project' | 'relationship'>('none');
   const [showFABMenu, setShowFABMenu] = useState(false);
 
+  const handleForceReload = async () => {
+    // Unregister all active service workers
+    if ('serviceWorker' in navigator) {
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+        }
+      } catch (err) {
+        console.error('Error unregistering SW:', err);
+      }
+    }
+    // Delete all browser cache buckets
+    if ('caches' in window) {
+      try {
+        const keys = await caches.keys();
+        for (const key of keys) {
+          await caches.delete(key);
+        }
+      } catch (err) {
+        console.error('Error deleting cache:', err);
+      }
+    }
+    // Force reload window
+    window.location.reload();
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
@@ -88,6 +115,27 @@ function DashboardContent() {
             </div>
           </div>
         )}
+
+        {/* Hard Refresh System Banner */}
+        <div className="max-w-2xl mx-auto pt-8">
+          <div className="bg-rose-950/5 border border-rose-500/10 rounded-[24px] p-5 flex justify-between items-center text-left shadow-sm">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-600 font-bold select-none text-base">
+                ⚡
+              </div>
+              <div className="space-y-0.5">
+                <h4 className="text-sm font-semibold text-rose-700 tracking-wide">Hard Refresh System</h4>
+                <p className="text-[9px] text-slate-500 font-bold tracking-wider uppercase">Clear Cache & Reload</p>
+              </div>
+            </div>
+            <button
+              onClick={handleForceReload}
+              className="px-4 py-2 bg-white/40 hover:bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 text-xs font-semibold text-rose-700 rounded-full transition-all duration-300 cursor-pointer uppercase tracking-wider"
+            >
+              Force Reload
+            </button>
+          </div>
+        </div>
 
       </div>
 
