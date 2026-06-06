@@ -1,4 +1,14 @@
-import type { Project, Activity, Relationship, TimelineEvent, MemorySnapshot, Observation } from '../types/memory';
+import type {
+  Project,
+  Activity,
+  Relationship,
+  TimelineEvent,
+  MemorySnapshot,
+  Observation,
+  Commitment,
+  Habit,
+  HabitLog,
+} from '../types/memory';
 
 export interface MemoryProvider {
   // Projects
@@ -25,4 +35,17 @@ export interface MemoryProvider {
   // Observations
   getObservations(): Promise<Observation[]>;
   saveObservations(observations: Observation[]): Promise<void>;
+
+  // Commitments
+  getCommitments(): Promise<Commitment[]>;
+  saveCommitment(commitment: Commitment): Promise<void>;
+  deleteCommitment(id: string): Promise<void>;
+
+  // Habits
+  getHabits(): Promise<Habit[]>;
+  saveHabit(habit: Habit): Promise<void>;
+
+  // Habit Logs
+  getHabitLogs(habitId?: string): Promise<HabitLog[]>;
+  saveHabitLog(log: HabitLog): Promise<void>;
 }

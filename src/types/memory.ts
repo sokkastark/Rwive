@@ -30,6 +30,7 @@ export interface Relationship {
   type: string; // e.g., 'Family', 'Friend', 'Work'
   lastInteractionDate: string; // ISO date string
   notes?: string;
+  preferredContactFrequencyDays: number; // default 7
 }
 
 export interface TimelineEvent {
@@ -48,15 +49,83 @@ export interface MemorySnapshot {
   lifeAreaStatuses: Record<string, 'active' | 'inactive' | 'moderate'>;
 }
 
+// --- Commitments ---
+
+export type CommitmentStatus = 'pending' | 'completed' | 'skipped';
+export type FollowUpStatus = 'pending' | 'asked' | 'resolved';
+
+export interface Commitment {
+  id: string;
+  title: string;
+  dueAt: string; // ISO date string
+  snoozedUntil?: string; // ISO date string
+  status: CommitmentStatus;
+  followUpStatus: FollowUpStatus;
+  outcomeNote?: string;
+  projectId?: string;
+  relationshipId?: string;
+  ownerId: string;
+}
+
+// --- Habits ---
+
+export type HabitFrequency = 'daily' | 'weekly';
+
+export interface Habit {
+  id: string;
+  title: string;
+  frequency: HabitFrequency;
+  preferredTime: string; // HH:MM format
+  streak: number;
+  lastCompletedAt?: string; // YYYY-MM-DD
+  lastRemindedAt?: string; // ISO date string
+  ownerId: string;
+}
+
+export interface HabitLog {
+  id: string;
+  habitId: string;
+  date: string; // YYYY-MM-DD
+  status: 'completed' | 'skipped';
+  ownerId: string;
+}
+
+// --- Memory Operations ---
+
 export interface MemoryOperation {
-  operation: 'LOG_ACTIVITY' | 'CREATE_PROJECT' | 'UPDATE_PROJECT' | 'LOG_RELATIONSHIP_INTERACTION';
+  operation:
+    | 'LOG_ACTIVITY'
+    | 'CREATE_PROJECT'
+    | 'UPDATE_PROJECT'
+    | 'LOG_RELATIONSHIP_INTERACTION'
+    | 'CREATE_COMMITMENT'
+    | 'COMPLETE_COMMITMENT'
+    | 'SKIP_COMMITMENT'
+    | 'SNOOZE_COMMITMENT'
+    | 'CREATE_HABIT'
+    | 'COMPLETE_HABIT';
+  // Project / Activity
   project?: string;
   activity?: string;
   status?: 'active' | 'paused' | 'completed';
   date?: string;
+  // Relationship
   person?: string;
   relationshipType?: string;
   notes?: string;
+  // Commitment
+  commitmentId?: string;
+  commitmentTitle?: string;
+  dueAt?: string; // ISO date string
+  snoozedUntil?: string; // ISO date string
+  outcomeNote?: string;
+  projectId?: string;
+  relationshipId?: string;
+  // Habit
+  habitId?: string;
+  habitTitle?: string;
+  habitFrequency?: HabitFrequency;
+  preferredTime?: string;
 }
 
 export interface Observation {
@@ -71,4 +140,3 @@ export interface Observation {
   relatedEntityId: string;
   timestamp: string; // ISO date string
 }
-

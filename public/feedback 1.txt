@@ -1,0 +1,574 @@
+Needed to came back after a week. But i started using it. I see there is currently no inteligence inside it. Initially when i started it sayed no projects after adding contect and projects little discription and reminders. It is showing ing the contacts projects added. But still the top say Rwive noticed 0 things today. And it is asking my inputs all the time no insights. 
+the inputs added in my mobile is not still uploaded to onlne or synced, bucause it is not reflecting on the desktop brouser
+
+This is where your original idea becomes interesting.
+
+There are actually two kinds of intelligence in Rwive.
+
+Intelligence 1: Deterministic Companion (No AI)
+
+Example:
+
+Stark:
+Fix sister's scooty in one hour.
+
+Rwive stores:
+
+{
+  "type": "commitment",
+  "title": "Fix sister's scooty",
+  "dueAt": "2026-06-06T17:00"
+}
+
+At 5 PM:
+
+Did you fix your sister's scooty?
+
+No AI required.
+
+Just rules.
+
+Same:
+
+Drink ash gourd juice daily.
+
+Next morning:
+
+How was the ash gourd juice today?
+
+Again no AI.
+
+Just habit tracking.
+
+Intelligence 2: Companion AI (LLM)
+
+This is where Gemini/OpenAI enters.
+
+Example:
+
+Stark:
+Need to prepare for appraisal.
+
+AI understands:
+
+{
+  "type": "project",
+  "category": "career",
+  "urgency": "medium"
+}
+
+A week later:
+
+Rwive sees:
+
+Project:
+Appraisal
+
+Last activity:
+9 days ago
+
+Rules detect inactivity.
+
+Then AI generates:
+
+You mentioned your appraisal preparation last week.
+
+Since then there hasn't been any progress recorded.
+
+Would spending 15 minutes reviewing your achievements today help restart momentum?
+
+Now it feels human.
+
+My recommendation
+
+Do NOT use AI for reminders.
+
+Use rules.
+
+Because:
+
+Reminder
+Habit
+Commitment
+Schedule
+Follow-up
+
+are predictable.
+
+AI would only increase cost and complexity.
+
+Use AI for:
+
+Understanding
+Need to call my mom tomorrow.
+
+AI converts to:
+
+{
+  "type": "commitment",
+  "person": "Mother",
+  "due": "tomorrow"
+}
+Pattern Discovery
+
+After 3 months:
+
+I noticed something.
+
+You consistently maintain family commitments.
+
+Most delays happen on personal learning projects.
+
+Would you like to explore why?
+Reflection
+
+Evening review:
+
+Today you:
+
+✓ Worked on Guardian
+✓ Logged health activity
+✓ Contacted Jahnavi
+
+What was the most meaningful moment today?
+Focus Suggestions
+
+Morning:
+
+You have 4 active projects.
+
+Based on recent activity,
+"Film Project" hasn't received attention for 12 days.
+
+It may benefit from a small next step today.
+
+So for Rwive I would split it like this:
+
+Memory Layer
+    ↓
+Rules Engine
+    ↓
+Reminder Engine
+    ↓
+Companion AI
+
+The AI sits at the top.
+
+Not at the bottom.
+
+Right now your next roadmap should probably be:
+
+1. Cloud Sync (Supabase)
+2. Google Login
+3. Shared Memory
+4. Commitment Engine
+5. Habit Engine
+6. Reminder Engine
+7. Push Notifications
+8. AI Understanding Layer
+9. AI Reflection Layer
+10. Voice Companion
+
+Notice AI is Step 8.
+
+Because once the memory, habits, commitments, reminders, and notifications exist, the AI suddenly has something meaningful to reason about.
+
+Otherwise it's just a chatbot attached to an empty database.
+
+What you're trying to build is not "ChatGPT with memory."
+
+It's closer to:
+
+Memory
++
+Reminders
++
+Habits
++
+Projects
++
+Relationships
++
+AI Reflection
+=
+Rwive
+
+The memory foundation you've already built is exactly what makes that possible.
+
+sorry no AI for now i will include ai later. for now what will do to improve the current satte
+
+If you're intentionally postponing AI, that's actually a good decision.
+
+After seeing your screenshots and hearing your first real usage, I would stop all AI work for now and focus on making Rwive useful every day.
+
+What I would build next
+Priority 1: Cloud Sync (Critical)
+
+You already discovered the problem yourself.
+
+Phone → Project Added
+Desktop → Empty
+
+This breaks the experience immediately.
+
+Build:
+
+Google Login
+Supabase
+Memory Sync
+
+Then:
+
+Phone
+↓
+Supabase
+↓
+Desktop
+
+Same memory everywhere.
+
+Priority 2: Commitment Engine
+
+Right now:
+
+Need to fix sister's scooty in one hour.
+
+becomes an Activity.
+
+Wrong.
+
+It should become:
+
+Commitment
+Due Time
+Pending
+
+Create a new object:
+
+Project
+Person
+Activity
+Commitment
+Priority 3: Reminder Engine
+
+Without AI.
+
+Example:
+
+Fix scooty in 1 hour
+
+At +1 hour:
+
+Did you fix the scooty?
+
+Options:
+
+Yes
+No
+Later
+Assigned
+
+This single feature will make Rwive feel 10x smarter.
+
+Priority 4: Habit Engine
+
+Example:
+
+Drink ash gourd juice daily.
+
+Create:
+
+Habit
+Frequency = Daily
+Preferred Time = Morning
+
+Next morning:
+
+Did you have your ash gourd juice?
+
+Again no AI.
+
+Priority 5: Notification System
+
+Right now Rwive waits for you.
+
+You want Rwive to come to you.
+
+Add:
+
+Browser notifications
+Mobile PWA notifications
+
+Example:
+
+Rwive
+
+You planned to call your mother today.
+
+Now Rwive becomes proactive.
+
+Priority 6: Dashboard Cleanup
+
+After using it, I noticed something.
+
+The most important thing is:
+
+What needs my attention today?
+
+But the screen shows:
+
+Projects
+People
+Journey
+
+Instead show:
+
+Today
+⚠ Fix sister's scooty
+⚠ Call mother
+⚠ Ash gourd juice
+Recent Journey
+Yesterday...
+
+Projects and People can stay hidden under Details.
+
+Priority 7: Daily Check-in
+
+Morning:
+
+Good Morning Stark
+
+Today:
+
+• Ash gourd juice
+• Guardian review
+• Call mother
+
+Evening:
+
+What happened today?
+
+✓ Done
+✗ Not Done
+→ Moved
+
+This can all be rule-based.
+
+No AI.
+
+What I would NOT build now
+
+❌ Voice AI
+
+❌ Gemini
+
+❌ OpenAI
+
+❌ Sentiment analysis
+
+❌ Smart recommendations
+
+❌ Complex observations
+
+Because you're still discovering the workflow.
+
+My recommendation for Rwive v1.1
+
+Build only these four things:
+
+1. Google Login
+2. Cloud Sync
+3. Commitment Engine
+4. Reminder Notifications
+
+Then use it for another 2 weeks.
+
+I suspect after two weeks you'll discover something important:
+
+Most of your life is actually commitments and habits, not projects.
+
+That's exactly what your scooty and ash gourd juice examples are revealing. Rwive is slowly teaching you what kind of companion it needs to become.
+
+google login needed more thing like policy. currently will hard code the login system and i mpiment all other things
+
+For your personal use, I agree.
+
+Don't get stuck on authentication, privacy policies, OAuth verification, and account systems right now.
+
+You're still validating the product.
+
+For Rwive v1.1 I would do this:
+
+Option A (Recommended)
+
+Hardcode a single user.
+
+User:
+Stark
+
+UserId:
+stark
+
+No login screen.
+
+No signup.
+
+No password.
+
+No Google.
+
+No user management.
+
+Use Supabase only as storage.
+
+Projects
+People
+Activities
+Commitments
+Habits
+Observations
+
+All tied to:
+
+owner = "stark"
+
+Then when you open:
+
+Phone
+Desktop
+Laptop
+
+all devices automatically sync.
+
+Even Simpler
+
+Create:
+
+/settings
+
+and store:
+
+{
+  "owner": "stark",
+  "device": "mobile"
+}
+
+That's enough for now.
+
+What I would build immediately after sync
+New Memory Type: Commitment
+
+Current:
+
+Need to fix my sister's scooty in one hour.
+
+Stored as:
+
+Activity
+
+Wrong.
+
+Should become:
+
+{
+  "type": "commitment",
+  "title": "Fix sister scooty",
+  "dueAt": "2026-06-07T17:00",
+  "status": "pending"
+}
+Reminder Engine
+
+Every minute:
+
+Check pending commitments
+
+If:
+
+Now > DueTime
+Status = Pending
+
+Generate:
+
+Reminder
+Notification
+
+Browser notification:
+
+Rwive
+
+You planned to fix your sister's scooty.
+
+Did you get it done?
+
+Buttons:
+
+✓ Done
+⏰ Later
+✗ Not Done
+Habit Engine
+
+Example:
+
+Drink ash gourd juice daily
+
+Store:
+
+{
+  "type": "habit",
+  "frequency": "daily",
+  "time": "morning"
+}
+
+Then every morning:
+
+Have you had your ash gourd juice today?
+One thing I would add
+
+You already discovered something important during testing.
+
+Many of your entries are not projects.
+
+Examples:
+
+Fix scooty
+Call mother
+Pay EB bill
+Drink juice
+Read anthropology
+
+These are different things.
+
+I would introduce:
+
+Project
+Habit
+Commitment
+Person
+
+as first-class objects.
+
+Not everything should become a project.
+
+If I were writing the roadmap for the next week:
+
+Rwive v1.1
+
+[ ] Supabase Sync
+[ ] Hardcoded Stark User
+[ ] Commitment Model
+[ ] Reminder Engine
+[ ] Browser Notifications
+[ ] Habit Model
+[ ] Habit Check-ins
+
+No AI.
+
+No voice.
+
+No login.
+
+No multiple users.
+
+Just make Rwive remember, sync, and follow up.
+
+That alone will make it feel far more like the companion you've been describing than any AI integration would right now.
