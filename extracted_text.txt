@@ -1,0 +1,1102 @@
+I am thinking to use ai to clean up my email gmail
+
+Yes, AI can help clean up your Gmail, but I recommend doing it in stages so you don't accidentally delete something important.
+
+Option 1: Use Gmail's Built-in Tools First
+
+With Gmail you can quickly:
+
+Search older_than:1y
+
+Search has:attachment larger:10M
+
+Search category:promotions
+
+Search unsubscribe
+
+Delete or archive large groups of emails
+
+This often removes thousands of emails in minutes.
+
+Option 2: Use AI to Categorize and Prioritize
+
+AI can:
+
+Identify newsletters you never read
+
+Group similar emails
+
+Find old receipts and invoices
+
+Highlight important conversations
+
+Suggest emails that can be safely archived
+
+Option 3: Build Your Own Privacy-Focused AI Cleaner
+
+Since you're interested in building apps, you could create a tool that:
+
+Connects to a user's Gmail via OAuth.
+
+Reads metadata only (sender, subject, date).
+
+Uses AI to classify emails:
+
+Important
+
+Newsletters
+
+Promotions
+
+Receipts
+
+Social
+
+Archive Candidates
+
+Shows recommendations before taking action.
+
+Never deletes automatically without confirmation.
+
+This is the safest approach and follows good security practices.
+
+Security Rules
+
+If you use any AI service:
+
+Use OAuth login (never ask for Gmail passwords).
+
+Request minimum permissions.
+
+Show a preview before deleting.
+
+Keep an undo/recovery option.
+
+Allow archive first, delete later.
+
+Log all actions performed by AI.
+
+My recommendation
+
+Start by using Gmail search filters and archive old emails. Once you're comfortable, use AI only for classification and recommendations, not automatic deletion. That's where AI provides the most value with the least risk.
+
+How many emails are in your Gmail roughly—hundreds, thousands, or tens of thousands? That will determine the best cleanup strategy.
+
+I have multiple emails. One for personal one for work one for testing one for banks and payment. First i will test one. The email which for the first time and it is tha main email of all from my email usage time line. It as thousands of email and it is the sequrity mail for all my other mails
+
+For that particular email account, I would be extremely careful.
+
+From what you're describing, this is not just an email account:
+
+It is your oldest email.
+
+It is the recovery email for other accounts.
+
+It likely contains years of password reset emails.
+
+It may contain bank, government, tax, social media, and account ownership records.
+
+It is effectively the "root account" of your digital life.
+
+I would not allow any AI to automatically delete emails from this account.
+
+Instead, use AI only for analysis and classification.
+
+Phase 1: Audit Only (Safe)
+
+Let AI scan and create reports such as:
+
+Number of emails by sender
+
+Largest senders
+
+Newsletters
+
+Promotions
+
+Social media notifications
+
+Password reset emails
+
+Security alerts
+
+Banking emails
+
+Receipts and invoices
+
+Output example:
+
+Category
+
+Count
+
+Security
+
+1,250
+
+Newsletters
+
+8,400
+
+Promotions
+
+12,100
+
+Banking
+
+350
+
+Receipts
+
+1,100
+
+No deletion yet.
+
+
+
+Phase 2: Protect Important Emails
+
+Create labels:
+
+🔒 Security & Recovery
+
+🏦 Banking & Payments
+
+📄 Receipts & Invoices
+
+👤 Personal
+
+💼 Work
+
+⚠️ Important Accounts
+
+Anything related to account ownership gets labeled and preserved.
+
+
+
+Phase 3: Identify Safe Deletion Candidates
+
+AI can flag:
+
+Old promotions
+
+Marketing emails
+
+Shopping offers
+
+Expired discount coupons
+
+Social notifications
+
+But still don't delete automatically.
+
+Instead:
+
+Review
+
+Archive
+
+Wait 30 days
+
+Then delete
+
+
+
+What I Would Do If This Were My Account
+
+Export a complete Gmail backup first using Google Takeout.
+
+Create labels for important categories.
+
+Use AI only to classify.
+
+Archive aggressively.
+
+Delete only newsletters and promotions after review.
+
+Never delete:
+
+Password reset emails
+
+Account creation emails
+
+Bank statements
+
+Tax documents
+
+Identity verification emails
+
+Purchase receipts
+
+
+
+Since you're a designer and already building web apps, a better long-term project might be creating your own Privacy-First AI Email Manager:
+
+Analyze → Label → Suggest → Confirm → Archive
+
+instead of
+
+Analyze → Delete
+
+That approach is much safer for an account that serves as the recovery hub for all your other emails.
+
+Approximately how many emails are in this Gmail account? 10,000? 50,000? 100,000+? And do you want to build your own AI cleanup tool, or use an existing one?
+
+This is exactly the right time to create an agents.md for Rwive. Since Rwive's success depends on memory, context, and assistant behavior, the architecture rules are even more important than the code.
+
+Rwive - AI Life Companion Platform
+
+Development Rules, Architecture Guidelines & Agent Principles
+
+Product Name: RwiveTagline: Raw Will Move
+
+
+
+1. Product Mission
+
+Rwive is not a task manager, note-taking app, project management tool, or chatbot.
+
+Rwive is a Personal Life Operating System that helps users maintain awareness of:
+
+Projects
+
+Goals
+
+Learning
+
+Health
+
+Relationships
+
+Family
+
+Career
+
+Creativity
+
+Personal Growth
+
+The primary goal is:
+
+Help users remember what matters and keep moving forward.
+
+
+
+2. Core Philosophy
+
+Rwive should behave like:
+
+A trusted assistant
+
+A supportive friend
+
+A thoughtful manager
+
+A personal coach
+
+A life companion
+
+Rwive must proactively identify:
+
+Neglected projects
+
+Delayed commitments
+
+Upcoming milestones
+
+Personal goals drifting off track
+
+Opportunities for progress
+
+Rwive should never feel like a form-based productivity tool.
+
+Conversations drive the system.
+
+
+
+3. Technical Stack Constraints
+
+Frontend
+
+Next.js
+
+TypeScript
+
+Tailwind CSS
+
+ShadCN UI Components
+
+Backend
+
+Supabase
+
+Data Storage
+
+Phase 1:
+
+Supabase Database
+
+Phase 2:
+
+Vector Memory Store
+
+Phase 3:
+
+Hybrid Long-Term Memory Engine
+
+
+
+4. Memory First Architecture
+
+IMPORTANT:
+
+Memory is the product.
+
+AI is a feature.
+
+Never design features that depend entirely on AI memory.
+
+All important information must be stored in structured data.
+
+Examples:
+
+ProjectsGoalsActivitiesRelationshipsHabitsDecisionsMilestonesRemindersLife Areas
+
+
+
+5. Life Areas Structure
+
+Every item belongs to a Life Area.
+
+Examples:
+
+FamilyHealthCareerBusinessLearningCreativeFinanceRelationships
+
+Projects must always belong to a Life Area.
+
+
+
+6. Activity Driven System
+
+Users should rarely update project status manually.
+
+Preferred workflow:
+
+User:
+
+"Worked on ZenRide dashboard today."
+
+Rwive:
+
+Logs activity
+
+Updates project timeline
+
+Updates momentum score
+
+Updates project health
+
+All updates should be derived from activities whenever possible.
+
+
+
+7. AI Layer Abstraction
+
+Create AIService abstraction.
+
+The UI must never depend directly on a model provider.
+
+Supported Providers:
+
+Phase 1:
+
+OpenAI
+
+Phase 2:
+
+Gemini
+
+Phase 3:
+
+Local Models
+
+Ollama
+
+Llama
+
+Qwen
+
+Gemma
+
+Switching providers must require only configuration changes.
+
+
+
+8. Voice Layer Abstraction
+
+Create VoiceService abstraction.
+
+Phase 1:
+
+Browser Speech Recognition
+
+Browser Speech Synthesis
+
+Phase 2:
+
+Gemini Live
+
+OpenAI Realtime
+
+Phase 3:
+
+Telephony Integration
+
+UI must not know which voice provider is active.
+
+
+
+9. Rwive Personality Rules
+
+Rwive should:
+
+Be supportive
+
+Be proactive
+
+Be calm
+
+Be encouraging
+
+Be concise
+
+Rwive should NOT:
+
+Shame users
+
+Be overly motivational
+
+Use guilt
+
+Act like a therapist
+
+Give life-critical advice
+
+Rwive should ask thoughtful follow-up questions.
+
+Example:
+
+"Film Project has been inactive for 90 days. Is it paused, blocked, or no longer a priority?"
+
+
+
+10. Daily Companion Workflow
+
+Morning Check-In
+
+Rwive should provide:
+
+Today's priorities
+
+Active projects
+
+Neglected projects
+
+Upcoming commitments
+
+Evening Check-In
+
+Rwive should ask:
+
+"What did you work on today?"
+
+Responses should update memory automatically.
+
+
+
+11. Proactive Awareness Engine
+
+Rwive should generate observations such as:
+
+Project inactive for 30+ days
+
+Goal abandoned
+
+Upcoming travel
+
+Missed study target
+
+Relationship follow-up overdue
+
+Project nearing completion
+
+Observations must be explainable and traceable to stored data.
+
+No hallucinated insights.
+
+
+
+12. Timeline System
+
+Every project must maintain:
+
+Project Timeline
+
+Examples:
+
+Idea CreatedResearch StartedDesign CompletedPausedResumedCompleted
+
+Users should always understand:
+
+What happened
+
+When it happened
+
+Why it happened
+
+
+
+13. ISO-Compliant Folder Structure
+
+src/
+
+├── app/├── components/│ ├── common/│ ├── dashboard/│ ├── projects/│ ├── activities/│ ├── voice/│ └── companion/├── hooks/├── services/├── memory/├── lib/├── types/├── store/├── styles/├── prompts/└── utils/
+
+
+
+14. File Length Rule
+
+No file may exceed 250 lines.
+
+If a file approaches 250 lines:
+
+Split components
+
+Extract hooks
+
+Extract utilities
+
+Extract services
+
+Single Responsibility Principle is mandatory.
+
+
+
+15. MVP Scope (Version 0.1)
+
+Required:
+
+Authentication
+
+Life Areas
+
+Projects
+
+Activities
+
+Daily Check-In
+
+Project Timeline
+
+Project Health
+
+Morning Brief
+
+Evening Review
+
+Not Allowed:
+
+Social Features
+
+Marketplace
+
+Teams
+
+Complex Automation
+
+Calendar Sync
+
+Email Integration
+
+Focus on personal awareness.
+
+
+
+16. Success Criteria
+
+Rwive is successful when a user can open the app and immediately answer:
+
+What matters most right now?
+
+What have I neglected?
+
+What progress have I made?
+
+What should I focus on next?
+
+If those four questions are answered clearly, the system is working.
+
+
+
+Guiding Principle
+
+Rwive does not manage tasks.
+
+Rwive protects continuity.
+
+The things users care about should never be forgotten.
+
+This document is strong enough to become the foundation of the entire project. The one thing I'd add later is a "Companion Behavior Specification" document that defines exactly when Rwive is allowed to interrupt, remind, suggest, or stay silent—because that behavior will ultimately determine whether Rwive feels like a helpful companion or an annoying notification app.
+
+i guess giving only rules to follow to the agents.md is wnoughf because will be devlopng along with it this is to not miss the rulse and ooveride example no coding morethan 250 lines. not restricting the devlopment its selp to a fixed phase it may evolve. am i raight?
+
+Yes, I think you're right.
+
+In fact, for a project like Rwive, I would separate two things:
+
+1. Agents.md (Rules)
+
+This should contain:
+
+Architecture rules
+
+Coding standards
+
+Folder structure
+
+File length limits
+
+Naming conventions
+
+Separation of concerns
+
+Abstraction requirements
+
+Non-negotiable principles
+
+Examples:
+
+No file > 250 lines
+
+
+
+Use service abstractions
+
+
+
+No direct DB access from UI
+
+
+
+No hardcoded data
+
+
+
+Memory first architecture
+
+
+
+Voice provider must be swappable
+
+
+
+AI provider must be swappable
+
+These are timeless rules.
+
+
+
+2. Product Vision Document
+
+Separate file:
+
+docs/vision.md
+
+Contains:
+
+What Rwive is
+
+Philosophy
+
+Long-term vision
+
+Examples
+
+User experience
+
+This evolves constantly.
+
+
+
+Why This Separation Matters
+
+Suppose today you write:
+
+Version 1:
+
+Projects
+
+Activities
+
+Check-ins
+
+Six months later you discover:
+
+Relationships are more important than projects.
+
+Now the product changes.
+
+But the architecture rules:
+
+No file > 250 lines
+
+Use services
+
+Use abstractions
+
+Memory first
+
+are still valid.
+
+
+
+What Happens If You Mix Them
+
+Many people write:
+
+agents.md
+
+
+
+Phase 1:
+
+Build Dashboard
+
+
+
+Phase 2:
+
+Build Voice
+
+
+
+Phase 3:
+
+Build AI
+
+Then 3 months later:
+
+Reality ≠ Plan
+
+The document becomes outdated.
+
+The AI keeps following old instructions.
+
+Development becomes harder.
+
+
+
+What I Would Put in agents.md
+
+Only things that should still be true 3 years from now.
+
+For example:
+
+✅ Good
+
+No source file > 250 lines
+
+
+
+Use TypeScript
+
+
+
+No direct DB access
+
+
+
+Memory is the source of truth
+
+
+
+All AI providers must be abstracted
+
+❌ Bad
+
+Build dashboard first
+
+
+
+Use Gemini
+
+
+
+Use Supabase
+
+
+
+Build voice in phase 2
+
+Because these may change.
+
+
+
+One Rule I Would Add For Rwive
+
+This may become the most important rule in the entire project:
+
+Memory is the source of truth.
+
+
+
+AI must never be treated as memory.
+
+
+
+All important information must be stored
+
+in structured or retrievable form.
+
+Why?
+
+Because 2 years from now:
+
+OpenAI may change.
+
+Gemini may change.
+
+Llama may change.
+
+But Stark's:
+
+Projects
+
+Goals
+
+Activities
+
+Relationships
+
+Life history
+
+must remain.
+
+
+
+So my recommendation:
+
+agents.md = Rules
+
+vision.md = Dream
+
+roadmap.md = Current plan
+
+This keeps Rwive free to evolve while ensuring the AI coding agents never violate the principles that make the system maintainable. That's exactly the kind of separation I'd expect from a project that may grow over many years.
+
+also include any memory storeage store it in json file instedted writing directly some where
+
+Yes. I would definitely add that as a non-negotiable rule in agents.md.
+
+Not because JSON is the final storage solution.
+
+But because it enforces data ownership, portability, auditability, and memory integrity.
+
+For Rwive, memory is the most valuable asset.
+
+
+
+Rule: Memory Persistence
+
+All memory generated by Rwive must be stored in structured JSON format.
+
+
+
+AI-generated observations, summaries, activities, project updates,
+
+relationship updates, reminders, goals, and life events must never
+
+exist only inside an LLM context window.
+
+
+
+Every memory operation must pass through MemoryService.
+
+
+
+Direct writes from AI components to database tables are prohibited.
+
+
+
+Memory must first be serialized into a JSON structure before persistence.
+
+
+
+Why This Is Important
+
+Bad:
+
+User:
+
+I called my mother today.
+
+
+
+AI:
+
+Stores somewhere internally.
+
+Six months later:
+
+Nobody knows where it is.
+
+
+
+Good:
+
+{
+
+ "id": "activity_001",
+
+ "type": "relationship",
+
+ "person": "Mother",
+
+ "action": "phone_call",
+
+ "date": "2026-06-06",
+
+ "notes": "Called mother"
+
+}
+
+Stored.
+
+Searchable.
+
+Portable.
+
+Auditable.
+
+
+
+Another Rule I'd Add
+
+AI may generate memories.
+
+
+
+AI may suggest memories.
+
+
+
+AI may summarize memories.
+
+
+
+AI may never become the memory store itself.
+
+
+
+Memory Service Rule
+
+All memory operations must pass through MemoryService.
+
+
+
+UI Components
+
+→ MemoryService
+
+→ JSON
+
+→ Storage Provider
+
+
+
+Never:
+
+
+
+UI
+
+→ Database
+
+
+
+Never:
+
+
+
+AI
+
+→ Database
+
+This keeps the architecture clean.
+
+
+
+Future Proofing
+
+Today:
+
+JSON File
+
+Tomorrow:
+
+Supabase
+
+Next Year:
+
+Vector Database
+
+Five Years Later:
+
+Knowledge Graph
+
+Your data survives because the format is standardized.
+
+
+
+I Would Also Add This
+
+Every memory record must be human-readable.
+
+
+
+Users must be able to export their complete memory
+
+history as JSON at any time.
+
+
+
+Users own their memory.
+
+Rwive only manages it.
+
+That rule is very aligned with the philosophy of Rwive.
+
+Because if Rwive becomes your companion for years, you don't want your life history trapped inside a database schema or an AI provider.
+
+You want a folder that says:
+
+memory/
+
+
+
+projects.json
+
+activities.json
+
+relationships.json
+
+goals.json
+
+reminders.json
+
+journal.json
+
+Even if Rwive disappears one day, Stark's memories remain.
+
+That is the kind of rule that belongs in agents.md because it is an architectural principle, not a feature.
+
