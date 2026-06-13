@@ -10,6 +10,10 @@ import type {
   Commitment,
   Habit,
   HabitLog,
+  PersonalMemory,
+  CompanionMessage,
+  MessageSender,
+  MessageType,
 } from '../types/memory';
 import type { MorningBrief, EveningReview } from '../types/briefing';
 import { LocalMemoryProvider } from '../memory/LocalMemoryProvider';
@@ -36,7 +40,8 @@ interface MemoryContextType {
   eveningReview: EveningReview | null;
   isLoading: boolean;
   // Actions
-  addProject: (name: string, description: string, lifeAreaId: string) => Promise<void>;
+  addProject: (name: string, description: string, lifeAreaId: string, aliases?: string[], keywords?: string[]) => Promise<void>;
+  updateProject: (proj: Project) => Promise<void>;
   logActivity: (projectName: string, description: string) => Promise<void>;
   logRelationship: (name: string, type: string, notes?: string) => Promise<void>;
   dismissObservation: (id: string) => Promise<void>;
@@ -52,6 +57,13 @@ interface MemoryContextType {
   updateTimelineEvent: (id: string, description: string) => Promise<void>;
   addReflection: (description: string, title?: string) => Promise<void>;
   addCustomObservation: (title: string, description: string, category?: Observation['category']) => Promise<void>;
+  memories: PersonalMemory[];
+  addPersonalMemory: (content: string, category?: string) => Promise<void>;
+  deletePersonalMemory: (id: string) => Promise<void>;
+  messages: CompanionMessage[];
+  addCompanionMessage: (sender: MessageSender, type: MessageType, text: string) => Promise<void>;
+  clearCompanionMessages: () => void;
+  restoreBackup: (backupData: any) => Promise<void>;
 }
 
 const MemoryContext = createContext<MemoryContextType | undefined>(undefined);
@@ -71,6 +83,8 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [morningBrief, setMorningBrief] = useState<MorningBrief | null>(null);
   const [eveningReview, setEveningReview] = useState<EveningReview | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [memories, setMemories] = useState<PersonalMemory[]>([]);
+  const [messages, setMessages] = useState<CompanionMessage[]>([]);
 
   // Auto-detect Supabase vs Local — resolved at runtime so SSR is safe
   const provider = useMemo<IMemoryProvider>(() => {
@@ -96,15 +110,16 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           await migrateLocalToSupabaseIfNeeded(provider);
         }
 
-        const [projs, acts, rels, obs, times, comms, hbts, hlogs] = await Promise.all([
-          provider.getProjects(),
-          provider.getActivities(),
-          provider.getRelationships(),
-          provider.getObservations(),
-          provider.getTimelineEvents(),
-          provider.getCommitments(),
-          provider.getHabits(),
-          provider.getHabitLogs(),
+        const [projs, acts, rels, obs, times, comms, hbts, hlogs, mems] = await Promise.all([
+          provider.getProjects().catch((err: any) => { console.error("Error loading projects:", err?.message || err); return []; }),
+          provider.getActivities().catch((err: any) => { console.error("Error loading activities:", err?.message || err); return []; }),
+          provider.getRelationships().catch((err: any) => { console.error("Error loading relationships:", err?.message || err); return []; }),
+          provider.getObservations().catch((err: any) => { console.error("Error loading observations:", err?.message || err); return []; }),
+          provider.getTimelineEvents().catch((err: any) => { console.error("Error loading timeline events:", err?.message || err); return []; }),
+          provider.getCommitments().catch((err: any) => { console.error("Error loading commitments:", err?.message || err); return []; }),
+          provider.getHabits().catch((err: any) => { console.error("Error loading habits:", err?.message || err); return []; }),
+          provider.getHabitLogs().catch((err: any) => { console.error("Error loading habit logs:", err?.message || err); return []; }),
+          provider.getPersonalMemories().catch((err: any) => { console.warn("Memories table not found or empty (ignoring):", err?.message || err); return []; }),
         ]);
 
         setProjects(projs);
@@ -114,6 +129,25 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setCommitments(comms);
         setHabits(hbts);
         setHabitLogs(hlogs);
+        setMemories(mems);
+
+        if (typeof window !== 'undefined') {
+          const localMsgs = localStorage.getItem('rwive_companion_messages');
+          if (localMsgs) {
+            setMessages(JSON.parse(localMsgs));
+          } else {
+            // Default greeting
+            const greet: CompanionMessage = {
+              id: 'init-greet',
+              sender: 'rwive',
+              type: 'chat',
+              text: "Hello Stark. What's up? Do you have something special today?",
+              timestamp: new Date().toISOString(),
+            };
+            setMessages([greet]);
+            localStorage.setItem('rwive_companion_messages', JSON.stringify([greet]));
+          }
+        }
 
         // Regenerate observations
         const freshObs = CompanionEngine.generateObservations(projs, acts, rels);
@@ -124,8 +158,8 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         // Generate briefs
         setMorningBrief(BriefingEngine.generateMorningBrief(projs, acts, rels, syncedObs));
         setEveningReview(BriefingEngine.generateEveningReview(projs, acts, rels, syncedObs));
-      } catch (err) {
-        console.error('Error loading memory context:', err);
+      } catch (err: any) {
+        console.error('Error loading memory context:', err?.message || err, err?.stack || err);
       } finally {
         setIsLoading(false);
       }
@@ -150,19 +184,26 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // ----------------------------------------------------------------
   // Project / Activity / Relationship
   // ----------------------------------------------------------------
-  const addProject = async (name: string, description: string, lifeAreaId: string) => {
+  const addProject = async (name: string, description: string, lifeAreaId: string, aliases?: string[], keywords?: string[]) => {
     const r = MemoryService.executeOperation(
       { operation: 'CREATE_PROJECT', project: name, notes: description, relationshipType: lifeAreaId },
       projects, activities, relationships
     );
     const newProj = r.projectsToSave[0];
     if (!newProj) return;
+    newProj.aliases = aliases || [];
+    newProj.keywords = keywords || [];
     await provider.saveProject(newProj);
     if (r.timelineEventsToSave[0]) await provider.saveTimelineEvent(r.timelineEventsToSave[0]);
     const updated = [...projects, newProj];
     setProjects(updated);
     if (r.timelineEventsToSave[0]) setTimelineEvents((p) => [...p, r.timelineEventsToSave[0]]);
     await recalculateObs(updated, activities, relationships, observations);
+  };
+
+  const updateProject = async (proj: Project) => {
+    await provider.saveProject(proj);
+    setProjects((prev) => prev.map((p) => p.id === proj.id ? proj : p));
   };
 
   const logActivity = async (projectName: string, description: string) => {
@@ -337,16 +378,102 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     await provider.saveObservations(updated);
   };
 
+  const addPersonalMemory = async (content: string, category: string = 'general') => {
+    const newMem: PersonalMemory = {
+      id: crypto.randomUUID(),
+      content,
+      category,
+      createdAt: new Date().toISOString(),
+    };
+    await provider.savePersonalMemory(newMem);
+    setMemories((prev) => [...prev, newMem]);
+  };
+
+  const deletePersonalMemory = async (id: string) => {
+    await provider.deletePersonalMemory(id);
+    setMemories((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const addCompanionMessage = async (sender: MessageSender, type: MessageType, text: string) => {
+    const newMsg: CompanionMessage = {
+      id: crypto.randomUUID(),
+      sender,
+      type,
+      text,
+      timestamp: new Date().toISOString(),
+    };
+    const updated = [...messages, newMsg];
+    setMessages(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('rwive_companion_messages', JSON.stringify(updated));
+    }
+  };
+
+  const clearCompanionMessages = () => {
+    const greet: CompanionMessage = {
+      id: 'init-greet',
+      sender: 'rwive',
+      type: 'chat',
+      text: 'Hello Stark. I am your companion. Tell me what is on your mind today, and I will help you track and remember it.',
+      timestamp: new Date().toISOString(),
+    };
+    setMessages([greet]);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('rwive_companion_messages', JSON.stringify([greet]));
+    }
+  };
+
+  const restoreBackup = async (data: any) => {
+    if (data.projects) {
+      await Promise.allSettled(data.projects.map((p: any) => provider.saveProject(p)));
+      setProjects(data.projects);
+    }
+    if (data.activities) {
+      await Promise.allSettled(data.activities.map((a: any) => provider.saveActivity(a)));
+      setActivities(data.activities);
+    }
+    if (data.relationships) {
+      await Promise.allSettled(data.relationships.map((r: any) => provider.saveRelationship(r)));
+      setRelationships(data.relationships);
+    }
+    if (data.timelineEvents) {
+      await Promise.allSettled(data.timelineEvents.map((e: any) => provider.saveTimelineEvent(e)));
+      setTimelineEvents(data.timelineEvents);
+    }
+    if (data.observations) {
+      await provider.saveObservations(data.observations);
+      setObservations(data.observations);
+    }
+    if (data.commitments) {
+      await Promise.allSettled(data.commitments.map((c: any) => provider.saveCommitment(c)));
+      setCommitments(data.commitments);
+    }
+    if (data.habits) {
+      await Promise.allSettled(data.habits.map((h: any) => provider.saveHabit(h)));
+      setHabits(data.habits);
+    }
+    if (data.habitLogs) {
+      await Promise.allSettled(data.habitLogs.map((l: any) => provider.saveHabitLog(l)));
+      setHabitLogs(data.habitLogs);
+    }
+    if (data.memories) {
+      await Promise.allSettled(data.memories.map((m: any) => provider.savePersonalMemory(m)));
+      setMemories(data.memories);
+    }
+  };
+
   return (
     <MemoryContext.Provider
       value={{
         projects, activities, relationships, observations,
         timelineEvents, commitments, habits, habitLogs,
         morningBrief, eveningReview, isLoading,
-        addProject, logActivity, logRelationship, dismissObservation,
+        addProject, updateProject, logActivity, logRelationship, dismissObservation,
         addCommitment, completeCommitment, skipCommitment, snoozeCommitment, markCommitmentAsked,
         addHabit, completeHabit, markHabitReminded,
         deleteTimelineEvent, updateTimelineEvent, addReflection, addCustomObservation,
+        memories, addPersonalMemory, deletePersonalMemory,
+        messages, addCompanionMessage, clearCompanionMessages, restoreBackup,
       }}
     >
       {children}

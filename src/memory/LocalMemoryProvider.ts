@@ -9,6 +9,7 @@ import type {
   Commitment,
   Habit,
   HabitLog,
+  PersonalMemory,
 } from '../types/memory';
 
 const KEYS = {
@@ -196,5 +197,25 @@ export class LocalMemoryProvider implements MemoryProvider {
       logs.push(log);
     }
     this.setItem(KEYS.HABIT_LOGS, logs);
+  }
+
+  async getPersonalMemories(): Promise<PersonalMemory[]> {
+    return this.getItem<PersonalMemory[]>('rwive_memories', []);
+  }
+
+  async savePersonalMemory(memory: PersonalMemory): Promise<void> {
+    const memories = await this.getPersonalMemories();
+    const index = memories.findIndex((m) => m.id === memory.id);
+    if (index >= 0) {
+      memories[index] = memory;
+    } else {
+      memories.push(memory);
+    }
+    this.setItem('rwive_memories', memories);
+  }
+
+  async deletePersonalMemory(id: string): Promise<void> {
+    const memories = await this.getPersonalMemories();
+    this.setItem('rwive_memories', memories.filter((m) => m.id !== id));
   }
 }

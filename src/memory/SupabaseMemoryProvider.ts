@@ -10,6 +10,7 @@ import type {
   Commitment,
   Habit,
   HabitLog,
+  PersonalMemory,
 } from '../types/memory';
 
 const OWNER_ID = 'stark';
@@ -55,6 +56,8 @@ export class SupabaseMemoryProvider implements MemoryProvider {
       created_at: project.createdAt,
       updated_at: project.updatedAt,
       owner_id: OWNER_ID,
+      aliases: project.aliases || [],
+      keywords: project.keywords || [],
     };
     const { error } = await this.client.from('projects').upsert(row);
     if (error) throw error;
@@ -71,6 +74,8 @@ export class SupabaseMemoryProvider implements MemoryProvider {
       momentum: r.momentum as Project['momentum'],
       createdAt: r.created_at as string,
       updatedAt: r.updated_at as string,
+      aliases: (r.aliases as string[]) ?? [],
+      keywords: (r.keywords as string[]) ?? [],
     };
   }
 
@@ -330,6 +335,41 @@ export class SupabaseMemoryProvider implements MemoryProvider {
       },
       { onConflict: 'habit_id,date' }
     );
+    if (error) throw error;
+  }
+
+  async getPersonalMemories(): Promise<PersonalMemory[]> {
+    const { data, error } = await this.client
+      .from('memories')
+      .select('*')
+      .eq('owner_id', OWNER_ID)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data ?? []).map((r) => ({
+      id: r.id as string,
+      content: r.content as string,
+      category: r.category as string,
+      createdAt: r.created_at as string,
+    }));
+  }
+
+  async savePersonalMemory(memory: PersonalMemory): Promise<void> {
+    const { error } = await this.client.from('memories').upsert({
+      id: memory.id,
+      content: memory.content,
+      category: memory.category,
+      created_at: memory.createdAt,
+      owner_id: OWNER_ID,
+    });
+    if (error) throw error;
+  }
+
+  async deletePersonalMemory(id: string): Promise<void> {
+    const { error } = await this.client
+      .from('memories')
+      .delete()
+      .eq('id', id)
+      .eq('owner_id', OWNER_ID);
     if (error) throw error;
   }
 }

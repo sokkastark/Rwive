@@ -19,7 +19,7 @@ export interface ParsedCandidate {
 
 export function parseCheckInText(
   text: string,
-  existingProjects: { id: string; name: string }[],
+  existingProjects: { id: string; name: string; aliases?: string[]; keywords?: string[] }[],
   existingRelationships: { id: string; name: string }[]
 ): ParsedCandidate | null {
   const trimmed = text.trim();
@@ -152,8 +152,13 @@ export function parseCheckInText(
     cleanTitle = cleanTitle.replace(/^[,\.\s\-]+|[,\.\s\-]+$/g, '').trim();
     cleanTitle = cleanTitle.charAt(0).toUpperCase() + cleanTitle.slice(1);
 
-    // Try to find a matching project to link
-    const matchedProj = existingProjects.find(p => lower.includes(p.name.toLowerCase()));
+    // Try to find a matching project to link (name, alias, or keyword)
+    const matchedProj = existingProjects.find(p => {
+      const nameMatch = lower.includes(p.name.toLowerCase());
+      const aliasMatch = p.aliases?.some(alias => lower.includes(alias.toLowerCase()));
+      const keywordMatch = p.keywords?.some(kw => lower.includes(kw.toLowerCase()));
+      return nameMatch || aliasMatch || keywordMatch;
+    });
 
     return {
       type: 'commitment',
@@ -199,7 +204,12 @@ export function parseCheckInText(
   const hasActivityKey = activityKeywords.some(key => lower.includes(key));
   
   if (hasActivityKey) {
-    const matchedProj = existingProjects.find(p => lower.includes(p.name.toLowerCase()));
+    const matchedProj = existingProjects.find(p => {
+      const nameMatch = lower.includes(p.name.toLowerCase());
+      const aliasMatch = p.aliases?.some(alias => lower.includes(alias.toLowerCase()));
+      const keywordMatch = p.keywords?.some(kw => lower.includes(kw.toLowerCase()));
+      return nameMatch || aliasMatch || keywordMatch;
+    });
     
     let cleanTitle = trimmed;
     cleanTitle = cleanTitle.replace(/^(worked on|completed|designed|built|created|finished|fixed|updated)\s+/i, '');

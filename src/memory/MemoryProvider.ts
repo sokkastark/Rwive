@@ -8,6 +8,7 @@ import type {
   Commitment,
   Habit,
   HabitLog,
+  PersonalMemory,
 } from '../types/memory';
 
 export interface MemoryProvider {
@@ -49,4 +50,9 @@ export interface MemoryProvider {
   // Habit Logs
   getHabitLogs(habitId?: string): Promise<HabitLog[]>;
   saveHabitLog(log: HabitLog): Promise<void>;
+
+  // Personal Memories (Vault)
+  getPersonalMemories(): Promise<PersonalMemory[]>;
+  savePersonalMemory(memory: PersonalMemory): Promise<void>;
+  deletePersonalMemory(id: string): Promise<void>;
 }

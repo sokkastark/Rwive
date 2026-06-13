@@ -33,7 +33,7 @@ export async function migrateLocalToSupabaseIfNeeded(
   }
 
   // Load all local data
-  const [projects, activities, relationships, timelineEvents, observations, commitments, habits, habitLogs] =
+  const [projects, activities, relationships, timelineEvents, observations, commitments, habits, habitLogs, memories] =
     await Promise.all([
       local.getProjects(),
       local.getActivities(),
@@ -43,6 +43,7 @@ export async function migrateLocalToSupabaseIfNeeded(
       local.getCommitments(),
       local.getHabits(),
       local.getHabitLogs(),
+      local.getPersonalMemories(),
     ]);
 
   const hasData =
@@ -50,7 +51,8 @@ export async function migrateLocalToSupabaseIfNeeded(
     activities.length > 0 ||
     relationships.length > 0 ||
     commitments.length > 0 ||
-    habits.length > 0;
+    habits.length > 0 ||
+    memories.length > 0;
 
   if (!hasData) {
     // Nothing to migrate — mark done
@@ -64,6 +66,7 @@ export async function migrateLocalToSupabaseIfNeeded(
     relationships: relationships.length,
     commitments: commitments.length,
     habits: habits.length,
+    memories: memories.length,
   });
 
   // Upsert everything to remote — use allSettled so one failure doesn't abort the rest
@@ -76,6 +79,7 @@ export async function migrateLocalToSupabaseIfNeeded(
     ...commitments.map((c) => remoteProvider.saveCommitment(c)),
     ...habits.map((h) => remoteProvider.saveHabit(h)),
     ...habitLogs.map((l) => remoteProvider.saveHabitLog(l)),
+    ...memories.map((m) => remoteProvider.savePersonalMemory(m)),
   ]);
 
   localStorage.setItem(MIGRATION_FLAG, 'true');

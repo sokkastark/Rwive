@@ -18,7 +18,9 @@ create table if not exists projects (
   life_area_id text not null default 'general',
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  owner_id text not null default 'stark'
+  owner_id text not null default 'stark',
+  aliases text[] default '{}',
+  keywords text[] default '{}'
 );
 
 -- ============================================================
@@ -115,4 +117,15 @@ create table if not exists habit_logs (
   status text not null,                       -- completed | skipped
   owner_id text not null default 'stark',
   unique(habit_id, date)
+);
+
+-- ============================================================
+-- Memories / Fact Vault
+-- ============================================================
+create table if not exists memories (
+  id uuid primary key default uuid_generate_v4(),
+  content text not null,
+  category text not null default 'general',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  owner_id text not null default 'stark'
 );

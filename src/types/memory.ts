@@ -15,6 +15,8 @@ export interface Project {
   momentum: 'high' | 'medium' | 'low' | 'dormant';
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+  aliases?: string[];
+  keywords?: string[];
 }
 
 export interface Activity {
@@ -139,4 +141,24 @@ export interface Observation {
   suggestedAction: string;
   relatedEntityId: string;
   timestamp: string; // ISO date string
+}
+
+// --- Memory Vault (Facts) ---
+export interface PersonalMemory {
+  id: string;
+  content: string;
+  category: string;
+  createdAt: string;
+}
+
+// --- Companion Messages ---
+export type MessageSender = 'user' | 'rwive' | 'system';
+export type MessageType = 'chat' | 'activity' | 'commitment' | 'habit' | 'reflection' | 'relationship';
+
+export interface CompanionMessage {
+  id: string;
+  sender: MessageSender;
+  type: MessageType;
+  text: string;
+  timestamp: string;
 }
