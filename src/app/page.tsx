@@ -99,9 +99,14 @@ function DashboardContent() {
             <h1 className="text-2xl font-light tracking-[0.3em] text-slate-800 uppercase">Rwive</h1>
             <p className="text-[9px] text-slate-500 font-semibold tracking-[0.2em] uppercase">Life Companion OS</p>
           </div>
-          <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-white/70 text-amber-700 px-3 py-1 rounded-full border border-slate-200/80 shadow-sm select-none">
-            v1.1
-          </span>
+          <div className="flex flex-col items-end space-y-1">
+            <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-white/70 text-amber-700 px-3 py-1 rounded-full border border-slate-200/80 shadow-sm select-none">
+              v1.1
+            </span>
+            <span className="text-[8px] font-mono text-slate-500 bg-white/50 px-2 py-0.5 rounded border border-slate-200">
+              DB: {isSupabaseConfigured() ? 'Configured ✓' : 'Not Configured ✗'} (URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ? `${process.env.NEXT_PUBLIC_SUPABASE_URL.substring(0, 12)}...` : 'undefined'})
+            </span>
+          </div>
         </header>
 
         {/* 1. Today's Focus */}
