@@ -68,6 +68,11 @@ export class CompanionEngine {
     // 3. Mark any previously active observations that are no longer generated as resolved
     currentObservations.forEach((oldObs) => {
       if (oldObs.status === 'active') {
+        // Retain custom parser observations (id starts with 'custom_')
+        if (oldObs.id.startsWith('custom_')) {
+          resultMap.set(oldObs.id, oldObs);
+          return;
+        }
         const isStillGenerated = newObservations.some((newObs) => newObs.id === oldObs.id);
         if (!isStillGenerated) {
           resultMap.set(oldObs.id, { ...oldObs, status: 'resolved' });

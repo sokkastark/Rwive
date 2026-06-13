@@ -38,6 +38,7 @@ export const TimelinePanel: React.FC = () => {
       case 'status_change': return '🗺️';
       case 'milestone': return '🏅';
       case 'activity': return '👣';
+      case 'reflection': return '💭';
       default: return '📍';
     }
   };

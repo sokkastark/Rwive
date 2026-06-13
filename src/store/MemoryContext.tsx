@@ -50,6 +50,8 @@ interface MemoryContextType {
   markHabitReminded: (habitId: string) => Promise<void>;
   deleteTimelineEvent: (id: string) => Promise<void>;
   updateTimelineEvent: (id: string, description: string) => Promise<void>;
+  addReflection: (description: string, title?: string) => Promise<void>;
+  addCustomObservation: (title: string, description: string, category?: Observation['category']) => Promise<void>;
 }
 
 const MemoryContext = createContext<MemoryContextType | undefined>(undefined);
@@ -304,6 +306,37 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setTimelineEvents((prev) => prev.map((e) => e.id === id ? updated : e));
   };
 
+  const addReflection = async (description: string, title?: string) => {
+    const newEvent: TimelineEvent = {
+      id: crypto.randomUUID(),
+      projectId: null,
+      type: 'reflection',
+      title: title || 'Reflection',
+      description,
+      timestamp: new Date().toISOString(),
+    };
+    await provider.saveTimelineEvent(newEvent);
+    setTimelineEvents((prev) => [...prev, newEvent]);
+  };
+
+  const addCustomObservation = async (title: string, description: string, category: Observation['category'] = 'general') => {
+    const newObs: Observation = {
+      id: `custom_${crypto.randomUUID()}`,
+      type: 'custom_commitment_reminder' as any,
+      category,
+      status: 'active',
+      severity: 'info',
+      title,
+      description,
+      suggestedAction: 'Dismiss when resolved.',
+      relatedEntityId: '',
+      timestamp: new Date().toISOString(),
+    };
+    const updated = [...observations, newObs];
+    setObservations(updated);
+    await provider.saveObservations(updated);
+  };
+
   return (
     <MemoryContext.Provider
       value={{
@@ -313,7 +346,7 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         addProject, logActivity, logRelationship, dismissObservation,
         addCommitment, completeCommitment, skipCommitment, snoozeCommitment, markCommitmentAsked,
         addHabit, completeHabit, markHabitReminded,
-        deleteTimelineEvent, updateTimelineEvent,
+        deleteTimelineEvent, updateTimelineEvent, addReflection, addCustomObservation,
       }}
     >
       {children}

@@ -35,8 +35,8 @@ export interface Relationship {
 
 export interface TimelineEvent {
   id: string;
-  projectId: string;
-  type: 'created' | 'status_change' | 'milestone' | 'activity';
+  projectId?: string | null;
+  type: 'created' | 'status_change' | 'milestone' | 'activity' | 'reflection';
   title: string;
   description: string;
   timestamp: string; // ISO date string

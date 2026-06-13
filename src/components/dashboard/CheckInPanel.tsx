@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useMemory } from '../../store/MemoryContext';
 import type { Observation } from '../../types/memory';
+import { parseCheckInText, ParsedCandidate } from '../../utils/ruleParser';
 
 interface CheckInPanelProps {
   onOpenProjectModal: () => void;
@@ -21,23 +22,68 @@ export const CheckInPanel: React.FC<CheckInPanelProps> = ({
     morningBrief,
     eveningReview,
     logActivity,
+    addCommitment,
+    addHabit,
+    addReflection,
+    addCustomObservation,
+    dismissObservation,
   } = useMemory();
 
   const [checkInText, setCheckInText] = useState('');
   const [selectedProject, setSelectedProject] = useState('');
   const [message, setMessage] = useState('');
+  const [candidate, setCandidate] = useState<ParsedCandidate | null>(null);
+  const [showSuggestion, setShowSuggestion] = useState(false);
 
   const showMsg = (msg: string) => {
     setMessage(msg);
     setTimeout(() => setMessage(''), 4000);
   };
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setCheckInText(val);
+
+    const parsed = parseCheckInText(val, projects, relationships);
+    if (parsed) {
+      setCandidate(parsed);
+      setShowSuggestion(true);
+      // Auto-select project if detected in candidate
+      if (parsed.projectName) {
+        setSelectedProject(parsed.projectName);
+      }
+    } else {
+      setCandidate(null);
+      setShowSuggestion(false);
+    }
+  };
+
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Trigger one last parse on submit
+    const parsed = parseCheckInText(checkInText, projects, relationships);
+    if (parsed && !candidate) {
+      setCandidate(parsed);
+      setShowSuggestion(true);
+      if (parsed.projectName) {
+        setSelectedProject(parsed.projectName);
+      }
+      showMsg('I noticed a potential entry. Please review below!');
+      return;
+    }
+
+    if (showSuggestion && candidate) {
+      showMsg('Please confirm or dismiss the suggestion below first.');
+      return;
+    }
+
     if (!selectedProject || !checkInText.trim()) return;
     await logActivity(selectedProject, checkInText.trim());
     showMsg(`Logged step on project: "${selectedProject}"`);
     setCheckInText('');
+    setCandidate(null);
+    setShowSuggestion(false);
   };
 
   const getTimeGreeting = () => {
@@ -150,9 +196,19 @@ export const CheckInPanel: React.FC<CheckInPanelProps> = ({
               <h4 className="text-[10px] font-bold text-amber-700/80 uppercase tracking-[0.22em]">I noticed:</h4>
               <ul className="space-y-3 text-xs text-slate-700 font-light tracking-wide leading-relaxed">
                 {activeObs.map((obs) => (
-                  <li key={obs.id} className="flex items-start space-x-3">
-                    <span className="text-amber-600 mt-0.5">•</span>
-                    <span>{humanizeObservation(obs)}</span>
+                  <li key={obs.id} className="flex items-start justify-between group/obs">
+                    <div className="flex items-start space-x-3">
+                      <span className="text-amber-600 mt-0.5">•</span>
+                      <span>{humanizeObservation(obs)}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => dismissObservation(obs.id)}
+                      className="text-xs text-slate-400 hover:text-rose-600 px-1.5 opacity-0 group-hover/obs:opacity-100 transition-opacity cursor-pointer ml-2"
+                      title="Dismiss notice"
+                    >
+                      ×
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -183,12 +239,121 @@ export const CheckInPanel: React.FC<CheckInPanelProps> = ({
               <label className="block text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 mb-1 pl-1">What did you work on today?</label>
               <textarea
                 value={checkInText}
-                onChange={(e) => setCheckInText(e.target.value)}
+                onChange={handleTextChange}
                 className="w-full bg-white/50 border border-slate-200/80 rounded-2xl p-4 text-sm text-slate-800 focus:outline-none focus:border-amber-500/40 h-28 resize-none shadow-inner transition-colors duration-300 font-light leading-relaxed placeholder-slate-400"
                 placeholder="e.g. Worked on ZenRide dashboard today."
                 required
               />
             </div>
+
+            {/* Interactive Suggestion Card */}
+            {showSuggestion && candidate && (
+              <div className="bg-sky-500/5 border border-sky-500/20 backdrop-blur-md rounded-2xl p-5 space-y-3.5 shadow-sm animate-fadeIn">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-sky-700/80 block">
+                      🧭 I noticed this sounds like a {candidate.type === 'relationship_followup' ? 'relationship follow-up' : candidate.type}
+                    </span>
+                    <p className="text-[10px] text-slate-400 font-mono">
+                      Confidence: {candidate.confidence}
+                    </p>
+                    <p className="text-xs text-slate-700 font-light leading-relaxed pt-1">
+                      Would you like to register this?
+                    </p>
+                    <p className="text-sm font-semibold text-slate-900 mt-1 italic font-serif">
+                      "{candidate.title}"
+                      {candidate.dueText && ` (Due ${candidate.dueText})`}
+                      {candidate.frequency && ` (${candidate.frequency})`}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSuggestion(false);
+                      setCandidate(null);
+                    }}
+                    className="text-xs text-slate-400 hover:text-rose-500 cursor-pointer font-bold px-1"
+                    title="Dismiss Suggestion"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        if (candidate.type === 'commitment') {
+                          await addCommitment(
+                            candidate.title,
+                            candidate.dueAt || new Date().toISOString(),
+                            candidate.projectId,
+                            candidate.relationshipId
+                          );
+                          await addCustomObservation(
+                            'Planned task created',
+                            `You planned to: ${candidate.title} (${candidate.dueText}).`
+                          );
+                          showMsg('Reminder scheduled!');
+                        } else if (candidate.type === 'habit') {
+                          await addHabit(candidate.title, candidate.frequency || 'daily', '08:00');
+                          await addCustomObservation(
+                            'New habit tracked',
+                            `You started tracking: ${candidate.title} (${candidate.frequency}).`
+                          );
+                          showMsg('Habit added!');
+                        } else if (candidate.type === 'relationship_followup') {
+                          await addCommitment(
+                            candidate.title,
+                            candidate.dueAt || new Date().toISOString(),
+                            undefined,
+                            candidate.relationshipId
+                          );
+                          await addCustomObservation(
+                            'Relationship follow-up scheduled',
+                            `You scheduled to: ${candidate.title} (${candidate.dueText}).`
+                          );
+                          showMsg('Relationship reminder scheduled!');
+                        } else if (candidate.type === 'reflection') {
+                          await addReflection(candidate.reflectionText || candidate.title, candidate.title);
+                          showMsg('Reflection timeline event saved!');
+                        } else if (candidate.type === 'activity') {
+                          const projName = candidate.projectName || selectedProject;
+                          if (!projName) {
+                            showMsg('Please select a project to link this activity.');
+                            return;
+                          }
+                          await logActivity(projName, candidate.title);
+                          showMsg(`Logged activity for ${projName}!`);
+                        }
+
+                        // Reset
+                        setCheckInText('');
+                        setCandidate(null);
+                        setShowSuggestion(false);
+                      } catch (err) {
+                        console.error('Error confirming candidate:', err);
+                        showMsg('Error performing action. See console.');
+                      }
+                    }}
+                    className="px-4 py-2 bg-sky-650 hover:bg-sky-700 border border-sky-500/20 text-[10px] font-semibold text-white uppercase tracking-wider rounded-xl transition-all duration-300 cursor-pointer shadow-sm"
+                  >
+                    Confirm & Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSuggestion(false);
+                      setCandidate(null);
+                    }}
+                    className="px-4 py-2 bg-white/40 hover:bg-white/70 border border-slate-200 text-slate-500 hover:text-slate-800 text-[10px] font-semibold uppercase tracking-wider rounded-xl transition-all duration-300 cursor-pointer"
+                  >
+                    Ignore
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-4">
               <select
@@ -213,6 +378,31 @@ export const CheckInPanel: React.FC<CheckInPanelProps> = ({
                 <span>🎙️</span>
                 <span>Speak</span>
               </button>
+            </div>
+
+            {/* Prompt Examples */}
+            <div className="bg-slate-950/5 border border-slate-200/50 rounded-2xl p-4 space-y-2">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 pl-1 block">
+                Examples of how to talk to Rwive:
+              </span>
+              <ul className="text-[11px] text-slate-600 font-light space-y-1.5 pl-1.5 leading-relaxed">
+                <li className="flex items-center space-x-2">
+                  <span className="text-slate-400">•</span>
+                  <span>"Need to call mom tomorrow" <span className="text-slate-400 italic">(Relationship Reminder)</span></span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="text-slate-400">•</span>
+                  <span>"Drink ash gourd juice daily" <span className="text-slate-400 italic">(Habit Tracker)</span></span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="text-slate-400">•</span>
+                  <span>"Worked on portfolio website" <span className="text-slate-400 italic">(Activity Log)</span></span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="text-slate-400">•</span>
+                  <span>"Feeling excited about the launch" <span className="text-slate-400 italic">(Reflection Journal)</span></span>
+                </li>
+              </ul>
             </div>
 
             <button
